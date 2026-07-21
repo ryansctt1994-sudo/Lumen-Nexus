@@ -1,0 +1,94 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://github.com/ryansctt1994-sudo/Lumen-Nexus/evidence/manifests/pg-001.manifest.schema.json",
+  "title": "PG-001 Import Admission Manifest",
+  "type": "object",
+  "additionalProperties": false,
+  "required": [
+    "manifest_version",
+    "artifact_id",
+    "status",
+    "claimed_evidence",
+    "authority",
+    "canonicalization_profile",
+    "governance_bundle_sha256",
+    "source",
+    "tests",
+    "receipt",
+    "toolchain"
+  ],
+  "properties": {
+    "manifest_version": {"const": "1.0"},
+    "artifact_id": {"const": "PG-001"},
+    "status": {"const": "IMPORT_CANDIDATE"},
+    "claimed_evidence": {"const": "R3[self]"},
+    "authority": {"const": "NONE"},
+    "canonicalization_profile": {"type": "string", "minLength": 1},
+    "governance_bundle_sha256": {"$ref": "#/$defs/sha256"},
+    "source": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["origin", "commit_or_bundle_id", "files"],
+      "properties": {
+        "origin": {"type": "string", "minLength": 1},
+        "commit_or_bundle_id": {"type": "string", "minLength": 1},
+        "files": {"$ref": "#/$defs/fileRecords"}
+      }
+    },
+    "tests": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["expected_test_count", "runner", "files"],
+      "properties": {
+        "expected_test_count": {"const": 19},
+        "runner": {"type": "string", "minLength": 1},
+        "files": {"$ref": "#/$defs/fileRecords"}
+      }
+    },
+    "receipt": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["file", "signature_algorithm", "signer_key_id", "reported_result"],
+      "properties": {
+        "file": {"$ref": "#/$defs/fileRecord"},
+        "signature_algorithm": {"const": "Ed25519"},
+        "signer_key_id": {"type": "string", "minLength": 1},
+        "reported_result": {"const": "19/19 passed"}
+      }
+    },
+    "toolchain": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["python", "platform", "lockfile"],
+      "properties": {
+        "python": {"type": "string", "minLength": 1},
+        "platform": {"type": "string", "minLength": 1},
+        "lockfile": {"$ref": "#/$defs/fileRecord"}
+      }
+    }
+  },
+  "$defs": {
+    "sha256": {
+      "type": "string",
+      "pattern": "^[0-9a-f]{64}$"
+    },
+    "fileRecord": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["path", "sha256", "size_bytes"],
+      "properties": {
+        "path": {
+          "type": "string",
+          "pattern": "^(packages|evidence|tests|tools)/[^\\\\]*$"
+        },
+        "sha256": {"$ref": "#/$defs/sha256"},
+        "size_bytes": {"type": "integer", "minimum": 0}
+      }
+    },
+    "fileRecords": {
+      "type": "array",
+      "minItems": 1,
+      "items": {"$ref": "#/$defs/fileRecord"}
+    }
+  }
+}

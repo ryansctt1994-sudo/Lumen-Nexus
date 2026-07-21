@@ -1,0 +1,44 @@
+name: PG-001 Admission Harness
+
+on:
+  pull_request:
+    paths:
+      - "tools/verify_pg001_import.py"
+      - "tools/tests/test_verify_pg001_import.py"
+      - "evidence/manifests/**"
+      - ".github/workflows/pg001-admission-harness.yml"
+  push:
+    branches:
+      - main
+    paths:
+      - "tools/verify_pg001_import.py"
+      - "tools/tests/test_verify_pg001_import.py"
+      - "evidence/manifests/**"
+      - ".github/workflows/pg001-admission-harness.yml"
+
+permissions:
+  contents: read
+
+jobs:
+  harness-tests:
+    runs-on: ubuntu-latest
+    timeout-minutes: 5
+    steps:
+      - name: Check out repository
+        uses: actions/checkout@v4
+
+      - name: Set up Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+
+      - name: Compile verifier and tests
+        run: |
+          python -m py_compile tools/verify_pg001_import.py
+          python -m py_compile tools/tests/test_verify_pg001_import.py
+
+      - name: Parse manifest schema
+        run: python -c "import json; json.load(open('evidence/manifests/pg-001.manifest.schema.json', encoding='utf-8'))"
+
+      - name: Run adversarial admission tests
+        run: python -m unittest discover -s tools/tests -p 'test_verify_pg001_import.py' -v
