@@ -8,6 +8,7 @@ on:
       - "packages/verifier/lumen_verifier/**"
       - "packages/verifier/tests/test_pg001r.py"
       - "tools/verify_pg001r_manifest.py"
+      - "tools/tests/test_verify_pg001r_manifest.py"
       - "evidence/manifests/pg-001r-source-manifest.json"
       - ".github/workflows/pg001r-conformance.yml"
   push:
@@ -19,6 +20,7 @@ on:
       - "packages/verifier/lumen_verifier/**"
       - "packages/verifier/tests/test_pg001r.py"
       - "tools/verify_pg001r_manifest.py"
+      - "tools/tests/test_verify_pg001r_manifest.py"
       - "evidence/manifests/pg-001r-source-manifest.json"
       - ".github/workflows/pg001r-conformance.yml"
 
@@ -48,10 +50,14 @@ jobs:
             packages/contracts/lumen_contracts/pg001r.py \
             packages/verifier/lumen_verifier/pg001r.py \
             packages/verifier/tests/test_pg001r.py \
-            tools/verify_pg001r_manifest.py
+            tools/verify_pg001r_manifest.py \
+            tools/tests/test_verify_pg001r_manifest.py
 
       - name: Verify immutable source manifest
         run: python tools/verify_pg001r_manifest.py
 
       - name: Run canonical 19-test conformance suite
         run: python -m unittest discover -s packages/verifier/tests -p 'test_pg001r.py' -v
+
+      - name: Run supplementary manifest adversarial tests
+        run: python -m unittest discover -s tools/tests -p 'test_verify_pg001r_manifest.py' -v
