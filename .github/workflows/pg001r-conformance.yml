@@ -1,0 +1,57 @@
+name: PG-001R Conformance
+
+on:
+  pull_request:
+    paths:
+      - "governance/specs/PG-001R.md"
+      - "packages/contracts/lumen_contracts/**"
+      - "packages/verifier/lumen_verifier/**"
+      - "packages/verifier/tests/test_pg001r.py"
+      - "tools/verify_pg001r_manifest.py"
+      - "evidence/manifests/pg-001r-source-manifest.json"
+      - ".github/workflows/pg001r-conformance.yml"
+  push:
+    branches:
+      - main
+    paths:
+      - "governance/specs/PG-001R.md"
+      - "packages/contracts/lumen_contracts/**"
+      - "packages/verifier/lumen_verifier/**"
+      - "packages/verifier/tests/test_pg001r.py"
+      - "tools/verify_pg001r_manifest.py"
+      - "evidence/manifests/pg-001r-source-manifest.json"
+      - ".github/workflows/pg001r-conformance.yml"
+
+permissions:
+  contents: read
+
+jobs:
+  conformance:
+    runs-on: ubuntu-latest
+    timeout-minutes: 5
+    strategy:
+      fail-fast: false
+      matrix:
+        python-version: ["3.11", "3.12", "3.13"]
+    steps:
+      - name: Check out repository
+        uses: actions/checkout@v4
+
+      - name: Set up Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: ${{ matrix.python-version }}
+
+      - name: Compile reference implementation
+        run: |
+          python -m py_compile \
+            packages/contracts/lumen_contracts/pg001r.py \
+            packages/verifier/lumen_verifier/pg001r.py \
+            packages/verifier/tests/test_pg001r.py \
+            tools/verify_pg001r_manifest.py
+
+      - name: Verify immutable source manifest
+        run: python tools/verify_pg001r_manifest.py
+
+      - name: Run canonical 19-test conformance suite
+        run: python -m unittest discover -s packages/verifier/tests -p 'test_pg001r.py' -v
