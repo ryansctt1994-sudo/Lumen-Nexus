@@ -2,7 +2,8 @@
 
 **State:** HELD  
 **Effective date:** 2026-07-21  
-**Automatic release:** DISABLED
+**Automatic release:** DISABLED  
+**Production authority:** NONE — PROHIBITED
 
 The seal records that the architecture is frozen while promotion authority is withheld. It is not a cryptographic signature, a production approval, or a claim of independent verification.
 
@@ -24,4 +25,4 @@ The handoff contains both a reference to release after the first valid repair re
 
 ## Current result
 
-**SEAL HELD. PROMOTION WITHHELD. PRODUCTION PROHIBITED.**
+**SEAL HELD. PROMOTION WITHHELD. PRODUCTION AUTHORITY NONE — PROHIBITED.**
