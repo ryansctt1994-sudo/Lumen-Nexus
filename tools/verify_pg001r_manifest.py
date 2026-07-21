@@ -21,6 +21,18 @@ EXPECTED_KEYS = {
     "files",
 }
 FILE_KEYS = {"path", "sha256", "size_bytes"}
+EXPECTED_PATHS = {
+    PurePosixPath(".github/workflows/pg001r-conformance.yml"),
+    PurePosixPath("governance/artifacts/PG-001R.md"),
+    PurePosixPath("governance/specs/PG-001R.md"),
+    PurePosixPath("packages/contracts/lumen_contracts/__init__.py"),
+    PurePosixPath("packages/contracts/lumen_contracts/pg001r.py"),
+    PurePosixPath("packages/verifier/lumen_verifier/__init__.py"),
+    PurePosixPath("packages/verifier/lumen_verifier/pg001r.py"),
+    PurePosixPath("packages/verifier/tests/test_pg001r.py"),
+    PurePosixPath("tools/tests/test_verify_pg001r_manifest.py"),
+    PurePosixPath("tools/verify_pg001r_manifest.py"),
+}
 
 
 def fail(message: str) -> int:
@@ -31,8 +43,15 @@ def fail(message: str) -> int:
 def safe_path(value: object) -> PurePosixPath:
     if not isinstance(value, str) or not value:
         raise ValueError("manifest file path must be a non-empty string")
+    if "\\" in value or "\x00" in value or ":" in value:
+        raise ValueError(f"unsafe manifest path: {value!r}")
     path = PurePosixPath(value)
-    if path.is_absolute() or ".." in path.parts or "." in path.parts:
+    if (
+        path.is_absolute()
+        or ".." in path.parts
+        or "." in path.parts
+        or str(path) != value
+    ):
         raise ValueError(f"unsafe manifest path: {value!r}")
     return path
 
@@ -106,6 +125,16 @@ def main() -> int:
             return fail(f"size mismatch for {relative}")
         if hashlib.sha256(content).hexdigest() != digest:
             return fail(f"SHA-256 mismatch for {relative}")
+
+    if seen != EXPECTED_PATHS:
+        missing = sorted(str(path) for path in EXPECTED_PATHS - seen)
+        extra = sorted(str(path) for path in seen - EXPECTED_PATHS)
+        detail = []
+        if missing:
+            detail.append("missing: " + ", ".join(missing))
+        if extra:
+            detail.append("unexpected: " + ", ".join(extra))
+        return fail("manifest file set mismatch (" + "; ".join(detail) + ")")
 
     test_path = ROOT / "packages" / "verifier" / "tests" / "test_pg001r.py"
     actual_tests = count_tests(test_path)
