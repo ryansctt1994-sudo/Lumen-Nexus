@@ -11,7 +11,6 @@ from packages.runtime.lumen_runtime.receipt_ledger import (
     CANON_PROFILE,
     GENESIS_PREDECESSOR,
     LedgerError,
-    Receipt,
     ReceiptLedger,
     _canonical_bytes,
     replay,
@@ -93,15 +92,13 @@ def test_snapshot_is_fixed_and_receipts_are_frozen():
 
 
 def test_event_byte_corruption_is_detected():
-    ledger = ReceiptLedger()
-    receipt = ledger.append({"k": 0})
+    receipt = ReceiptLedger().append({"k": 0})
     corrupted = dataclasses.replace(receipt, event_canonical_bytes=b'{"k":1}')
     assert not verify_chain((corrupted,))
 
 
 def test_receipt_digest_corruption_is_detected():
-    ledger = ReceiptLedger()
-    receipt = ledger.append({"k": 0})
+    receipt = ReceiptLedger().append({"k": 0})
     corrupted = dataclasses.replace(receipt, receipt_digest="f" * 64)
     assert not verify_chain((corrupted,))
 
@@ -163,12 +160,5 @@ def test_origin_receipt_is_not_r3_eligible_by_default():
 
 def test_verifier_rejects_unverified_non_null_witness_metadata():
     receipt = ReceiptLedger().append({"k": 0})
-    forged = Receipt(
-        seq=receipt.seq,
-        predecessor_digest=receipt.predecessor_digest,
-        event_canonical_bytes=receipt.event_canonical_bytes,
-        event_canonical_sha256=receipt.event_canonical_sha256,
-        receipt_digest=receipt.receipt_digest,
-        witness_identity_binding=None,
-    )
-    assert verify_chain((forged,))
+    forged = dataclasses.replace(receipt, witness_identity_binding="self-asserted")
+    assert not verify_chain((forged,))
