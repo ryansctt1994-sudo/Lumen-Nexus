@@ -1,0 +1,76 @@
+name: Contradiction
+
+description: Record a contradiction that blocks evidence promotion, authority, seal release, or reproduction.
+title: "[CONTRADICTION] "
+labels: []
+body:
+  - type: markdown
+    attributes:
+      value: |
+        A contradiction is a conflict between claims, implementations, receipts, evidence, or authority state. Do not use this form for ordinary defects unless the defect changes the evidence or authority posture.
+
+  - type: input
+    id: contradiction_id
+    attributes:
+      label: Contradiction ID
+      description: Use the next governed identifier or an existing registry ID.
+      placeholder: C-DOMAIN-001
+    validations:
+      required: true
+
+  - type: dropdown
+    id: severity
+    attributes:
+      label: Severity
+      options:
+        - CRITICAL
+        - HIGH
+        - MEDIUM
+        - LOW
+    validations:
+      required: true
+
+  - type: textarea
+    id: conflicting_statements
+    attributes:
+      label: Conflicting statements or states
+      description: Quote or identify each side of the contradiction with exact artifact paths, commits, receipts, or claims.
+    validations:
+      required: true
+
+  - type: textarea
+    id: evidence
+    attributes:
+      label: Supporting evidence
+      description: Include immutable identifiers, commands, logs, hashes, and reproduction conditions. State clearly when evidence is unavailable.
+    validations:
+      required: true
+
+  - type: checkboxes
+    id: blocking_effect
+    attributes:
+      label: Blocking effect
+      options:
+        - label: Blocks evidence promotion
+        - label: Blocks E4 reproduction
+        - label: Blocks seal release
+        - label: Blocks production authority
+        - label: Blocks clinical or other high-stakes use
+
+  - type: textarea
+    id: disposition
+    attributes:
+      label: Required disposition
+      description: Define the repair, downgrade, quarantine, test, receipt, and gate decision required for closure.
+    validations:
+      required: true
+
+  - type: checkboxes
+    id: acknowledgements
+    attributes:
+      label: Governance acknowledgements
+      options:
+        - label: I understand that prose-only resolution cannot close an evidence-bearing contradiction.
+          required: true
+        - label: I understand that closing this issue does not itself promote evidence or release authority.
+          required: true

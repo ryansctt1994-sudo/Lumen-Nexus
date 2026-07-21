@@ -1,0 +1,81 @@
+name: Evidence gap
+description: Record a missing, incomplete, non-reproducible, or overclaimed evidence artifact.
+title: "[EVIDENCE GAP] "
+labels: []
+body:
+  - type: markdown
+    attributes:
+      value: |
+        Use this form when a claim lacks the committed artifacts, complete hashes, environment anchors, receipts, witness independence, or replay instructions required by its stated evidence level.
+
+  - type: input
+    id: claim
+    attributes:
+      label: Claim or artifact
+      description: Identify the exact claim, component, certificate, receipt, bundle, or baseline.
+    validations:
+      required: true
+
+  - type: dropdown
+    id: claimed_level
+    attributes:
+      label: Claimed evidence level
+      options:
+        - R0
+        - R1
+        - R2[self]
+        - R3[self]
+        - R4
+        - R5
+        - R6
+        - Unknown or inconsistent
+    validations:
+      required: true
+
+  - type: textarea
+    id: missing_evidence
+    attributes:
+      label: Missing or defective evidence
+      description: Identify absent source, tests, receipts, signatures, full hashes, build anchors, witness records, or replay instructions.
+    validations:
+      required: true
+
+  - type: textarea
+    id: current_support
+    attributes:
+      label: Evidence currently available
+      description: List exact repository paths, commits, artifact identifiers, commands, and results. Do not infer unseen evidence.
+    validations:
+      required: true
+
+  - type: dropdown
+    id: interim_disposition
+    attributes:
+      label: Interim disposition
+      options:
+        - Downgrade claim
+        - Preserve as unresolved RED finding
+        - Quarantine artifact
+        - Block promotion
+        - Block authority
+        - Other fail-closed disposition
+    validations:
+      required: true
+
+  - type: textarea
+    id: closure_obligation
+    attributes:
+      label: Closure proof obligation
+      description: State the exact artifact, tests, receipt, independent replay, or gate decision required.
+    validations:
+      required: true
+
+  - type: checkboxes
+    id: acknowledgements
+    attributes:
+      label: Governance acknowledgements
+      options:
+        - label: Repository presence, CI success, signatures, or steward approval alone do not establish independent verification.
+          required: true
+        - label: The lowest defensible evidence and authority level applies until closure evidence is committed.
+          required: true
