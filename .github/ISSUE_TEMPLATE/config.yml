@@ -1,0 +1,8 @@
+blank_issues_enabled: false
+contact_links:
+  - name: Governance baseline
+    url: https://github.com/ryansctt1994-sudo/Lumen-Nexus/blob/main/governance/CONTRADICTIONS.yaml
+    about: Review the contradiction registry before opening a new governance issue.
+  - name: Evidence ladder
+    url: https://github.com/ryansctt1994-sudo/Lumen-Nexus/blob/main/governance/EVIDENCE_LADDER.md
+    about: Determine the applicable proof obligation and evidence ceiling.
