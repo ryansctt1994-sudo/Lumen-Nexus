@@ -1,0 +1,17 @@
+# Repository owner and current enforceable GitHub code owner
+* @ryansctt1994-sudo
+
+# Control-plane paths
+/.github/ @ryansctt1994-sudo
+/governance/ @ryansctt1994-sudo
+/STATUS.md @ryansctt1994-sudo
+/AUTHORITY.md @ryansctt1994-sudo
+/SEAL_CONDITION.md @ryansctt1994-sudo
+/tools/ @ryansctt1994-sudo
+/packages/contracts/ @ryansctt1994-sudo
+/packages/runtime/ @ryansctt1994-sudo
+/packages/verifier/ @ryansctt1994-sudo
+/evidence/ @ryansctt1994-sudo
+
+# @LastingCzardd is a documented steward but currently has read-only repository
+# permission. Add as an enforceable CODEOWNER only after C-DUAL-001 is resolved.
