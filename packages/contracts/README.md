@@ -9,6 +9,8 @@ This directory contains schemas, canonical data models, stable interfaces, and t
 - Canonicalization and schema changes are versioned and evidence-impacting.
 - Backward-incompatible changes require explicit migration and replay analysis.
 
-## Current state
+## Current implementation
 
-No production contracts are committed. This placeholder establishes the trust boundary only and does not satisfy any implementation or evidence obligation.
+`lumen_contracts/pg001r.py` defines the strict PG-001R promotion-request contract, evidence and authority enums, and the frozen authority/evidence floors.
+
+The module validates structure and types only. It does not decide promotion or establish that supplied evidence assertions are true. PG-001R remains a clean-room artifact with an R2[self] ceiling after origin-controlled conformance testing and no production authority.

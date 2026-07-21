@@ -1,0 +1,61 @@
+{
+  "artifact_id": "PG-001R",
+  "authority": "NONE",
+  "evidence_ceiling": "R2[self]",
+  "expected_conformance_tests": 19,
+  "files": [
+    {
+      "path": ".github/workflows/pg001r-conformance.yml",
+      "sha256": "50261be592c267f694ad2c8f5bed3611ef2fafa2cea7256b654355bfcb4531e0",
+      "size_bytes": 2060
+    },
+    {
+      "path": "governance/artifacts/PG-001R.md",
+      "sha256": "b6865c4c4ffb83794e173b1aff60ef536d376ad7e720ee2448012682a8ee9adb",
+      "size_bytes": 2600
+    },
+    {
+      "path": "governance/specs/PG-001R.md",
+      "sha256": "ae4ce7f42d0510ac2ffe8249edaa986f9e11fa54893235429357d7733d7c2302",
+      "size_bytes": 6063
+    },
+    {
+      "path": "packages/contracts/lumen_contracts/__init__.py",
+      "sha256": "f5431cdf826a864b31fd264ed9adc3d71c807b07d1cb0a9dbe3786dc5e824c09",
+      "size_bytes": 47
+    },
+    {
+      "path": "packages/contracts/lumen_contracts/pg001r.py",
+      "sha256": "37e3fb44b1b0d75bf821d3a98ba837a95a7baa41c28e466da118f63494b6ff8f",
+      "size_bytes": 9867
+    },
+    {
+      "path": "packages/verifier/lumen_verifier/__init__.py",
+      "sha256": "c0820c322c1c3d2c673940e51b5b01e9c8cb3fb9749b90ebcd925002144adcb0",
+      "size_bytes": 53
+    },
+    {
+      "path": "packages/verifier/lumen_verifier/pg001r.py",
+      "sha256": "9651f32b5c346e5714a13f0e2c5088e5b43b3bbd222f3240e7c709c2c60b2b06",
+      "size_bytes": 9425
+    },
+    {
+      "path": "packages/verifier/tests/test_pg001r.py",
+      "sha256": "51a8a5ad1fe336836211c41c09eec2be8a44085c0a777e36674f1f1e776505ae",
+      "size_bytes": 7247
+    },
+    {
+      "path": "tools/tests/test_verify_pg001r_manifest.py",
+      "sha256": "b58757c843f0946695bc41697edcc419460f93bf7e145b36c0d09e521d89ad8c",
+      "size_bytes": 4650
+    },
+    {
+      "path": "tools/verify_pg001r_manifest.py",
+      "sha256": "8745421bdd7df05f4f8092edeec2b91500f865681fbdca382ff8e5308934c802",
+      "size_bytes": 5741
+    }
+  ],
+  "historical_equivalence": false,
+  "manifest_version": "1.0",
+  "source_identity": "clean-room-reimplementation"
+}
