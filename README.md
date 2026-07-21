@@ -22,6 +22,7 @@ Repository presence, documentation, CI success, or configuration values do not p
 - [Seal condition](SEAL_CONDITION.md)
 - [Evidence ladder](governance/EVIDENCE_LADDER.md)
 - [Open contradictions](governance/CONTRADICTIONS.yaml)
+- [Open governance workstreams](governance/OPEN_WORKSTREAMS.md)
 - [ADR-0006 receipt-chain repair](governance/adr/ADR-0006-receipt-ledger.md)
 
 ## Trust domains
