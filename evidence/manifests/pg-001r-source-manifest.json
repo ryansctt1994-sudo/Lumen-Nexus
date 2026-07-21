@@ -6,8 +6,8 @@
   "files": [
     {
       "path": ".github/workflows/pg001r-conformance.yml",
-      "sha256": "751d4ee5238d3d81e091778434a2e7f31568a41bfe9bf79f51494c083b6574f7",
-      "size_bytes": 1742
+      "sha256": "50261be592c267f694ad2c8f5bed3611ef2fafa2cea7256b654355bfcb4531e0",
+      "size_bytes": 2060
     },
     {
       "path": "governance/artifacts/PG-001R.md",
@@ -45,9 +45,14 @@
       "size_bytes": 7247
     },
     {
+      "path": "tools/tests/test_verify_pg001r_manifest.py",
+      "sha256": "b58757c843f0946695bc41697edcc419460f93bf7e145b36c0d09e521d89ad8c",
+      "size_bytes": 4650
+    },
+    {
       "path": "tools/verify_pg001r_manifest.py",
-      "sha256": "ad6922078210793f63775d012174fce81571372cfd288158c122fc6fdb07d528",
-      "size_bytes": 4498
+      "sha256": "8745421bdd7df05f4f8092edeec2b91500f865681fbdca382ff8e5308934c802",
+      "size_bytes": 5741
     }
   ],
   "historical_equivalence": false,
