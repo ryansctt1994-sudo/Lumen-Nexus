@@ -10,6 +10,8 @@
 
 The Lumen Nexus constitutional specification is recorded at R2[self]. The handoff documents local component pockets at R3[self], but those claims are not elevated by their inclusion in this repository.
 
+PG-001R is a distinct clean-room reimplementation of the promotion-gate primitive. After its committed source manifest and canonical 19-test suite pass origin-controlled CI, its maximum defensible level is R2[self]. It has no signed R3 receipt, independent R4 reproduction, R5 reimplementation evidence, or production authority.
+
 The following are not evidence promotion events:
 
 - creating or merging a pull request;
@@ -20,8 +22,10 @@ The following are not evidence promotion events:
 
 ## Promotion blockers
 
-Promotion remains blocked by the open contradictions in `governance/CONTRADICTIONS.yaml`, incomplete witness-independence verification, absent public PG-001 materials, and the absence of a self-contained E4 reproduction bundle.
+Promotion remains blocked by the open contradictions in `governance/CONTRADICTIONS.yaml`, incomplete witness-independence verification, absence of the historical PG-001 materials, unresolved receipt-chain semantics, and the absence of a self-contained E4 reproduction bundle.
+
+PG-001R does not close C-PR006-001. That contradiction must be dispositioned as either exact recovery or explicit historical loss with PG-001R recorded as a separate successor.
 
 ## Repository phase
 
-This repository is in **governed instantiation**. The current branch adds control-plane structure only. No runtime implementation or production deployment is authorized.
+This repository is in **governed implementation**. It contains a control plane and a clean-room read-only verifier pocket, but not the submitted WeaverX runtime or any production-authorized system.
