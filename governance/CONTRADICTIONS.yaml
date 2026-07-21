@@ -1,0 +1,89 @@
+schema_version: "1.0"
+registry_id: "LNX-CONTRADICTIONS-2026-07-21"
+effective_date: "2026-07-21"
+default_disposition: "FAIL_CLOSED"
+promotion_blocked: true
+seal_state: "HELD"
+production_authority: "PROHIBITED"
+
+contradictions:
+  - id: "C-RCPT-001"
+    title: "Receipt and hash-chain semantic incompatibility"
+    severity: "CRITICAL"
+    status: "OPEN"
+    domain: "receipt-chain"
+    statement: "receipt.py and hashchain.py assign incompatible linkage semantics and permit caller-owned state."
+    blocks:
+      - "E4"
+      - "seal-release"
+      - "production"
+    required_disposition:
+      - "Approve ADR-0006."
+      - "Establish a single ReceiptLedger owner for linkage state."
+      - "Add positive, negative, mutation, and concurrency tests."
+      - "Issue a reproducible repair receipt."
+
+  - id: "C-EVID-001"
+    title: "Unsupported verification claims in evidence audit"
+    severity: "CRITICAL"
+    status: "OPEN"
+    domain: "evidence"
+    statement: "evidence_audit.py contains claims not supported by committed, reproducible evidence."
+    blocks:
+      - "E4"
+      - "seal-release"
+      - "production"
+    required_disposition:
+      - "Bind each claim to a valid receipt or downgrade it."
+      - "Preserve unresolved findings explicitly as RED."
+      - "Verify the corrected audit from a clean clone."
+
+  - id: "C-PR006-001"
+    title: "PG-001 absent from public repository"
+    severity: "HIGH"
+    status: "OPEN"
+    domain: "promotion-gate"
+    statement: "The submitted PG-001 source, 19-test suite, and receipt packet are not present in the public repository."
+    blocks:
+      - "E4"
+      - "public-reproduction"
+    required_disposition:
+      - "Commit the exact PG-001 source and tests."
+      - "Publish full immutable hashes and receipt metadata."
+      - "Re-run from a clean clone."
+
+  - id: "C-DUAL-001"
+    title: "Dual-steward authorization is not enforceable"
+    severity: "HIGH"
+    status: "OPEN"
+    domain: "stewardship"
+    statement: "The dual-steward protocol is incomplete; the documented Void steward currently has read-only repository permission."
+    blocks:
+      - "seal-release"
+      - "production"
+    required_disposition:
+      - "Define authorization scopes and conflict rules."
+      - "Grant the minimum repository role required for enforceable review, or define an external signed approval mechanism."
+      - "Test approval and emergency-revocation paths."
+
+  - id: "C-ANCHOR-001"
+    title: "E4 build anchors are placeholders"
+    severity: "HIGH"
+    status: "OPEN"
+    domain: "reproduction"
+    statement: "Documented E4 source, image, dependency, challenge, and governance anchors are incomplete or abbreviated."
+    blocks:
+      - "E4"
+      - "seal-release"
+      - "production"
+    required_disposition:
+      - "Publish complete immutable identifiers."
+      - "Construct a self-contained reproduction bundle."
+      - "Validate all anchors from a clean clone on non-origin hardware."
+
+closure_requirements:
+  repair_receipt_required: true
+  adr_reference: "governance/adr/ADR-0006-receipt-ledger.md"
+  independent_reproduction_required_for_e4: true
+  silent_bypass_prohibited: true
+  automatic_seal_release_prohibited: true
