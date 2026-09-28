@@ -1,6 +1,7 @@
 schema_version: "1.0"
 registry_id: "LNX-CONTRADICTIONS-2026-07-21"
 effective_date: "2026-07-21"
+last_amended: "2026-09-28"
 default_disposition: "FAIL_CLOSED"
 promotion_blocked: true
 seal_state: "HELD"
@@ -39,18 +40,28 @@ contradictions:
       - "Verify the corrected audit from a clean clone."
 
   - id: "C-PR006-001"
-    title: "PG-001 absent from public repository"
+    title: "PG-001 unrecoverable; successor is PG-001R"
     severity: "HIGH"
     status: "OPEN"
     domain: "promotion-gate"
-    statement: "The submitted PG-001 source, 19-test suite, and receipt packet are not present in the public repository."
+    statement: "The historical PG-001 source, 19-test suite, and receipt packet are not present in the public repository and are declared unrecoverable. PG-001R is a distinct superseding implementation. Historical identity, receipts, and evidence levels do not transfer."
+    disposition_date: "2026-09-28"
+    steward_decision: "PG-001 unrecoverable; PG-001R is the replacement."
+    decision_issue: "#14"
+    successor_artifact: "PG-001R"
+    successor_identifier_status: "PENDING_COMMITTED_DIGEST"
+    prohibited:
+      - "Do not relabel PG-001R as the original PG-001."
+      - "Do not call the PG-001R suite the original 19 tests."
+      - "Do not transfer historical receipts or evidence levels to PG-001R."
     blocks:
       - "E4"
       - "public-reproduction"
     required_disposition:
-      - "Commit the exact PG-001 source and tests."
-      - "Publish full immutable hashes and receipt metadata."
-      - "Re-run from a clean clone."
+      - "Keep PG-001 historical identity unestablished."
+      - "Bind an immutable identifier for committed PG-001R source, tests, and toolchain."
+      - "Reproduce PG-001R from a clean clone (#11, #12)."
+      - "Do not reconstruct a substitute original 19-test packet."
 
   - id: "C-DUAL-001"
     title: "Dual-steward authorization is not enforceable"
