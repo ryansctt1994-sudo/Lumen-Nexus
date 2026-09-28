@@ -1,0 +1,50 @@
+{
+  "packet_id": "LNX-PG001R-REPRO-2026-09-28",
+  "artifact_id": "PG-001R",
+  "historical_equivalence_to_pg001": false,
+  "pinned_commit": "aa52a1c854fa3d63a91c9c74a76ad2d1571197d9",
+  "repository": "https://github.com/ryansctt1994-sudo/Lumen-Nexus",
+  "operator": {
+    "name": null,
+    "organization": null,
+    "relationship_to_origin_team": null,
+    "independence_declaration": null,
+    "conflict_of_interest": null
+  },
+  "environment": {
+    "hardware_class": null,
+    "origin_hardware": null,
+    "os": null,
+    "arch": null,
+    "python_version": null,
+    "network_after_clone": "offline-required",
+    "extra_packages": "none"
+  },
+  "commands": [
+    "git checkout aa52a1c854fa3d63a91c9c74a76ad2d1571197d9",
+    "python3 tools/verify_pg001r_manifest.py",
+    "python3 -m unittest discover -s packages/verifier/tests -p 'test_pg001r.py' -v"
+  ],
+  "results": {
+    "checked_out_commit": null,
+    "manifest_exit_code": null,
+    "manifest_stdout_sha256": null,
+    "conformance_exit_code": null,
+    "conformance_tests_passed": null,
+    "conformance_stdout_sha256": null
+  },
+  "outcome": "NOT_RUN",
+  "allowed_outcomes": [
+    "REPRODUCED",
+    "PARTIALLY_REPRODUCED",
+    "FAILED_TO_REPRODUCE",
+    "INVALID_PACKAGE",
+    "ORIGIN_RERUN",
+    "NOT_RUN"
+  ],
+  "evidence_ceiling_claimed": "R2[self]",
+  "authority": "NONE",
+  "closes_issue_11": false,
+  "closes_issue_12": false,
+  "notes": "Unsigned structured record until #13 accepts a signing profile."
+}
