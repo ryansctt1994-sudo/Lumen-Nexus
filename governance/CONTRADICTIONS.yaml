@@ -49,7 +49,19 @@ contradictions:
     steward_decision: "PG-001 unrecoverable; PG-001R is the replacement."
     decision_issue: "#14"
     successor_artifact: "PG-001R"
-    successor_identifier_status: "PENDING_COMMITTED_DIGEST"
+    successor_identifier_status: "BOUND"
+    successor_identifiers:
+      implementation_commit: "aa52a1c854fa3d63a91c9c74a76ad2d1571197d9"
+      source_manifest: "evidence/manifests/pg-001r-source-manifest.json"
+      specification: "governance/specs/PG-001R.md"
+      contract: "packages/contracts/lumen_contracts/pg001r.py"
+      verifier: "packages/verifier/lumen_verifier/pg001r.py"
+      conformance_suite: "packages/verifier/tests/test_pg001r.py"
+      local_origin_verification_2026_09_28:
+        manifest_exit: 0
+        conformance_tests_passed: 19
+        evidence_ceiling: "R2[self]"
+        authority: "NONE"
     prohibited:
       - "Do not relabel PG-001R as the original PG-001."
       - "Do not call the PG-001R suite the original 19 tests."
@@ -59,8 +71,7 @@ contradictions:
       - "public-reproduction"
     required_disposition:
       - "Keep PG-001 historical identity unestablished."
-      - "Bind an immutable identifier for committed PG-001R source, tests, and toolchain."
-      - "Reproduce PG-001R from a clean clone (#11, #12)."
+      - "Reproduce PG-001R from a clean clone on non-origin hardware (#11, #12)."
       - "Do not reconstruct a substitute original 19-test packet."
 
   - id: "C-DUAL-001"
