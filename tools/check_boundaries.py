@@ -5,9 +5,9 @@ from __future__ import annotations
 
 import ast
 import sys
+from collections.abc import Iterable
 from dataclasses import dataclass
 from pathlib import Path
-from typing import Iterable
 
 ROOT = Path(__file__).resolve().parents[1]
 
@@ -67,14 +67,20 @@ def iter_python_files(path: Path) -> Iterable[Path]:
 
 
 def import_targets(tree: ast.AST) -> Iterable[tuple[str, int, int]]:
-    """Yield (module, line, relative_level) for import statements."""
+    """Yield qualified import names, retaining relative levels for resolution.
+
+    Include from-import names: checking only ``node.module`` misses
+    ``from packages import runtime`` and its aliased equivalent.
+    """
     for node in ast.walk(tree):
         if isinstance(node, ast.Import):
             for alias in node.names:
                 yield alias.name, node.lineno, 0
         elif isinstance(node, ast.ImportFrom):
             module = node.module or ""
-            yield module, node.lineno, node.level
+            for alias in node.names:
+                target = f"{module}.{alias.name}" if module else alias.name
+                yield target, node.lineno, node.level
 
 
 def starts_with_any(module: str, prefixes: tuple[str, ...]) -> bool:
@@ -116,15 +122,25 @@ def check_domain(domain: str) -> list[Violation]:
             continue
 
         for module, line, relative_level in import_targets(tree):
-            if relative_level >= 3:
-                violations.append(
-                    Violation(
-                        path,
-                        line,
-                        "relative-import",
-                        "imports may not escape the trust-domain package root",
+            if relative_level:
+                package = path.parent.relative_to(ROOT).parts
+                keep = len(package) - relative_level + 1
+                module = ".".join((*package[:max(keep, 0)], module))
+                if keep <= 0 or not starts_with_any(module, (f"packages.{domain}",)):
+                    violations.append(
+                        Violation(
+                            path,
+                            line,
+                            "relative-import",
+                            "imports may not escape the trust-domain package root",
+                        )
                     )
-                )
+
+            if module == "packages.*":
+                violations.append(Violation(
+                    path, line, "ambiguous-import",
+                    "project-root wildcard imports cannot establish a trust domain",
+                ))
 
             if starts_with_any(module, FORBIDDEN_IMPORTS[domain]):
                 violations.append(
@@ -180,7 +196,8 @@ def main() -> int:
 
     if violations:
         print("Trust-boundary check FAILED", file=sys.stderr)
-        for violation in sorted(violations, key=lambda item: (str(item.path), item.line, item.rule)):
+        ordered = sorted(violations, key=lambda item: (str(item.path), item.line, item.rule))
+        for violation in ordered:
             print(f"- {violation.render()}", file=sys.stderr)
         return 1
 
