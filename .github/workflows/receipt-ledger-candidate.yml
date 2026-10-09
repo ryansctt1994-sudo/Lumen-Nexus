@@ -1,0 +1,76 @@
+name: ReceiptLedger candidate conformance
+
+on:
+  pull_request:
+  push:
+    branches:
+      - main
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  receipt-ledger:
+    name: receipt-ledger (Python ${{ matrix.python-version }})
+    runs-on: ubuntu-24.04
+    timeout-minutes: 10
+    strategy:
+      fail-fast: false
+      matrix:
+        python-version: ["3.11", "3.12", "3.13"]
+    steps:
+      - name: Check out candidate source
+        uses: actions/checkout@v4
+        with:
+          persist-credentials: false
+
+      - name: Set up Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: ${{ matrix.python-version }}
+
+      - name: Record exact source and runtime identity
+        shell: bash
+        env:
+          PR_SOURCE_HEAD: ${{ github.event.pull_request.head.sha }}
+          EVENT_COMMIT: ${{ github.sha }}
+          RUN_ID: ${{ github.run_id }}
+        run: |
+          set -euo pipefail
+          mkdir -p receipt-ledger-output
+          {
+            printf 'source_checkout_sha='
+            git rev-parse HEAD
+            printf 'pr_source_head_sha=%s\n' "$PR_SOURCE_HEAD"
+            printf 'event_commit_sha=%s\n' "$EVENT_COMMIT"
+            printf 'github_run_id=%s\n' "$RUN_ID"
+            python --version
+            sha256sum packages/runtime/lumen_runtime/receipt_ledger.py
+            sha256sum packages/runtime/tests/test_receipt_ledger.py
+            sha256sum .github/workflows/receipt-ledger-candidate.yml
+          } | tee receipt-ledger-output/identity.txt
+
+      - name: Install pinned candidate-test runner
+        shell: bash
+        run: |
+          set -euo pipefail
+          python -m pip install --disable-pip-version-check 'pytest==9.1.1'
+          python -m pip freeze > receipt-ledger-output/environment.txt
+
+      - name: Compile and execute every ledger test
+        shell: bash
+        run: |
+          set -euo pipefail
+          python -m py_compile packages/runtime/lumen_runtime/receipt_ledger.py packages/runtime/tests/test_receipt_ledger.py
+          python -m pytest -q packages/runtime/tests/test_receipt_ledger.py \
+            --junitxml=receipt-ledger-output/junit.xml \
+            2>&1 | tee receipt-ledger-output/pytest.log
+
+      - name: Retain source-bound evidence on success or refusal
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: receipt-ledger-${{ matrix.python-version }}-${{ github.run_id }}
+          path: receipt-ledger-output/
+          if-no-files-found: error
