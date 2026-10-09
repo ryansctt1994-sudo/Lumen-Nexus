@@ -24,6 +24,18 @@ class LedgerError(Exception):
     """Raised when an append violates a frozen ledger invariant."""
 
 
+def _validate_object_keys(payload: Any) -> None:
+    """JSON object names must not be silently coerced from Python keys."""
+    if isinstance(payload, dict):
+        for key, value in payload.items():
+            if not isinstance(key, str):
+                raise LedgerError("event object keys must be strings")
+            _validate_object_keys(value)
+    elif isinstance(payload, (list, tuple)):
+        for value in payload:
+            _validate_object_keys(value)
+
+
 def _canonical_bytes(payload: Any) -> bytes:
     """Return deterministic UTF-8 JSON bytes or fail closed.
 
@@ -32,6 +44,7 @@ def _canonical_bytes(payload: Any) -> bytes:
     """
 
     try:
+        _validate_object_keys(payload)
         return json.dumps(
             payload,
             ensure_ascii=False,
@@ -39,7 +52,7 @@ def _canonical_bytes(payload: Any) -> bytes:
             sort_keys=True,
             separators=(",", ":"),
         ).encode("utf-8")
-    except (TypeError, ValueError) as exc:
+    except (TypeError, ValueError, RecursionError) as exc:
         raise LedgerError(f"event content is not canonicalizable: {exc}") from exc
 
 
@@ -158,13 +171,16 @@ class ReceiptLedger:
 
 
 def verify_chain(snapshot: Iterable[Receipt]) -> bool:
-    """Purely verify event hashes, receipt digests, sequencing, and linkage."""
+    """Verify canonical event bytes, hashes, receipt types, and linkage.
+
+    Internal consistency does not authenticate the origin or prove execution.
+    """
 
     expected_predecessor = GENESIS_PREDECESSOR
     try:
         receipts = tuple(snapshot)
         for index, receipt in enumerate(receipts):
-            if receipt.seq != index:
+            if type(receipt.seq) is not int or receipt.seq != index:
                 return False
             if receipt.predecessor_digest != expected_predecessor:
                 return False
@@ -172,12 +188,20 @@ def verify_chain(snapshot: Iterable[Receipt]) -> bool:
                 return False
             if receipt.witness_identity_binding is not None:
                 return False
+            if type(receipt.event_canonical_bytes) is not bytes:
+                return False
+            # Decode UTF-8 explicitly: json.loads(bytes) also accepts UTF-16/32.
+            # A byte-identical round trip rejects duplicate names, alternative
+            # escaping/spacing/key order, and nonfinite values (including overflow).
+            event = json.loads(receipt.event_canonical_bytes.decode("utf-8"))
+            if _canonical_bytes(event) != receipt.event_canonical_bytes:
+                return False
             if _sha256_hex(receipt.event_canonical_bytes) != receipt.event_canonical_sha256:
                 return False
             if _sha256_hex(_canonical_bytes(receipt.core())) != receipt.receipt_digest:
                 return False
             expected_predecessor = receipt.receipt_digest
-    except (AttributeError, LedgerError, TypeError):
+    except (AttributeError, LedgerError, TypeError, ValueError, RecursionError):
         return False
     return True
 

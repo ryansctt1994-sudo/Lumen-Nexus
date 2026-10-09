@@ -3,6 +3,7 @@
 from __future__ import annotations
 
 import dataclasses
+import hashlib
 import threading
 
 import pytest
@@ -162,3 +163,50 @@ def test_verifier_rejects_unverified_non_null_witness_metadata():
     receipt = ReceiptLedger().append({"k": 0})
     forged = dataclasses.replace(receipt, witness_identity_binding="self-asserted")
     assert not verify_chain((forged,))
+
+
+def rehashed_receipt(raw, **changes):
+    receipt = ReceiptLedger().append({"k": 0})
+    receipt = dataclasses.replace(
+        receipt, event_canonical_bytes=raw,
+        event_canonical_sha256=hashlib.sha256(raw).hexdigest(), **changes,
+    )
+    return dataclasses.replace(
+        receipt, receipt_digest=hashlib.sha256(_canonical_bytes(receipt.core())).hexdigest()
+    )
+
+
+@pytest.mark.parametrize("raw", [
+    b"not json", b'{"a":1,"a":2}', b'{"a":1,"\\u0061":2}',
+    b'{ "a": 1 }', b'{"b":1,"a":2}', b"NaN", b"Infinity", b"1e999",
+    b'"\\ud800"', b'"\xff"', b'"\\u0061"',
+    '{"a":1}'.encode("utf-16"),
+])
+def test_rehashed_noncanonical_event_is_refused(raw):
+    assert not verify_chain((rehashed_receipt(raw),))
+
+
+@pytest.mark.parametrize("seq", [False, 0.0])
+def test_rehashed_noninteger_sequence_is_refused(seq):
+    assert not verify_chain((rehashed_receipt(b"{}", seq=seq),))
+
+
+def test_mutable_event_bytes_are_refused():
+    assert not verify_chain((rehashed_receipt(bytearray(b"{}")),))
+
+
+@pytest.mark.parametrize("event", [{1: "x"}, {"nested": [{None: "x"}]}])
+def test_nonstring_keys_refused_without_advancing_state(event):
+    ledger = ReceiptLedger()
+    ledger.append({"valid": True})
+    before = (ledger.head(), ledger.snapshot())
+    with pytest.raises(LedgerError):
+        ledger.append(event)
+    assert (ledger.head(), ledger.snapshot()) == before
+
+
+@pytest.mark.parametrize("event", [None, True, 0, -0.0, 1.5, "café", [], {"x": [1, None]}])
+def test_canonical_json_values_still_round_trip(event):
+    ledger = ReceiptLedger()
+    ledger.append(event)
+    assert verify_chain(ledger.snapshot())

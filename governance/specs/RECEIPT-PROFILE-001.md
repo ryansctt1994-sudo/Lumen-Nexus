@@ -55,11 +55,18 @@ Until that profile, verifier, screening procedure, and key-management process ar
 The ADR-0006 ledger verifier:
 
 - verifies retained event bytes against their event digest;
+- requires immutable UTF-8 event bytes to round-trip byte-for-byte through the declared canonical encoder (rejecting duplicate names, nonfinite numbers, and alternative serializations);
+- requires literal integer sequence values and rejects non-string object keys at append instead of silently coercing them;
 - verifies sequence, predecessor linkage, canonicalization profile, and receipt digest;
 - rejects non-null witness metadata on an origin receipt;
 - performs no repair, mutation, key lookup, network access, or authority decision.
 
 Witness-envelope verification belongs to a separate read-only verifier and must fail closed when identity material, signatures, source bindings, environment bindings, or replay protection are absent or invalid.
+
+These checks establish internal consistency only. An origin receipt does not
+prove which process produced it; a caller can recompute an internally consistent
+chain. This repair leaves canonical bytes and digests for existing valid JSON
+events unchanged and does not rename or admit the candidate profile.
 
 ## Concurrency semantics
 
