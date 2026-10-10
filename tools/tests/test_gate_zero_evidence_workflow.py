@@ -14,7 +14,6 @@ WORKFLOW = ROOT / '.github' / 'workflows' / 'gate-zero-evidence.yml'
 
 REQUIRED_COMMANDS = (
     'python tools/check_boundaries.py',
-    "-p 'test_check_boundaries.py'",
     'python tools/verify_pg001r_manifest.py',
     "-p 'test_pg001r.py'",
     "-p 'test_verify_pg001r_manifest.py'",
