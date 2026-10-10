@@ -65,6 +65,24 @@ class GateZeroWorkflowTests(unittest.TestCase):
                 with self.assertRaises(ValueError):
                     check_contract(original.replace(cmd, 'echo not-a-test'))
 
+    def test_refuse_commented_or_echoed_verification(self) -> None:
+        original = WORKFLOW.read_text(encoding='utf-8')
+        for command in REQUIRED_COMMANDS:
+            # All required commands must be active shell invocations, not text
+            # in comments or echo statements that can mint a false-green job.
+            line = next(
+                (ln for ln in original.splitlines() if command in ln and ln.lstrip().startswith('python ')),
+                None,
+            )
+            if line is None:
+                # For test discovery arguments, locate their executable line.
+                line = next(ln for ln in original.splitlines() if command in ln)
+            indent = line[: len(line) - len(line.lstrip())]
+            for substitute in (indent + '# ' + line.lstrip(), indent + 'echo ' + repr(line.lstrip())):
+                with self.subTest(command=command, substitute=substitute):
+                    with self.assertRaises(ValueError):
+                        check_contract(original.replace(line, substitute, 1))
+
     def test_refuse_trigger_and_masking_mutations(self) -> None:
         original = WORKFLOW.read_text(encoding='utf-8')
         mutants = (
