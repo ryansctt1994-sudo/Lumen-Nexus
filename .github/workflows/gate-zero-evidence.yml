@@ -1,0 +1,52 @@
+# New always-on aggregation check; does not change frozen PG-001R workflow bytes.
+# Do not require this job in branch protection until this workflow reaches main
+# and a successful check exists for the exact main revision.
+name: Gate Zero evidence baseline
+
+on:
+  pull_request:
+    branches:
+      - main
+  push:
+    branches:
+      - main
+
+permissions:
+  contents: read
+
+jobs:
+  gate-zero-evidence:
+    name: gate-zero-evidence
+    runs-on: ubuntu-24.04
+    timeout-minutes: 12
+    steps:
+      - name: Checkout source (read-only token)
+        uses: actions/checkout@v4
+        with:
+          persist-credentials: false
+      - name: Set up pinned Python major/minor
+        uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+      - name: Check workflow trigger and non-vacuity contract
+        run: python -m unittest discover -s tools/tests -p 'test_gate_zero_evidence_workflow.py' -v
+      - name: Run trust-boundary checker and positive/negative tests
+        shell: bash
+        run: |
+          set -euo pipefail
+          python -m py_compile tools/check_boundaries.py
+          python tools/check_boundaries.py
+      - name: Verify frozen PG-001R manifest and semantic conformance
+        shell: bash
+        run: |
+          set -euo pipefail
+          python -m py_compile tools/verify_pg001r_manifest.py
+          python tools/verify_pg001r_manifest.py
+          python -m unittest discover -s packages/verifier/tests -p 'test_pg001r.py' -v
+          python -m unittest discover -s tools/tests -p 'test_verify_pg001r_manifest.py' -v
+      - name: Run PG-001 admission refusal tests
+        shell: bash
+        run: |
+          set -euo pipefail
+          python -m py_compile tools/verify_pg001_import.py
+          python -m unittest discover -s tools/tests -p 'test_verify_pg001_import.py' -v
