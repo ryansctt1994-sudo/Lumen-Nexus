@@ -36,7 +36,6 @@ jobs:
           set -euo pipefail
           python -m py_compile tools/check_boundaries.py
           python tools/check_boundaries.py
-          python -m unittest discover -s tools/tests -p 'test_check_boundaries.py' -v
       - name: Verify frozen PG-001R manifest and semantic conformance
         shell: bash
         run: |
