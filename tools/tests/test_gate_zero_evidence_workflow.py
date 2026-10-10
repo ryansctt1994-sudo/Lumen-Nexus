@@ -48,9 +48,20 @@ def check_contract(source: str) -> None:
         raise ValueError('checkout retains write credentials')
     if 'python-version: "3.12"' not in source:
         raise ValueError('unbound Python minor version')
-    for cmd in REQUIRED_COMMANDS:
-        if cmd not in source:
-            raise ValueError(f'missing required verification: {cmd}')
+    # Exact active command lines: a commented/echoed no-op cannot count as
+    # evidence execution. These are deliberately pinned to known source steps.
+    required_invocations = (
+        'python tools/check_boundaries.py',
+        'python tools/verify_pg001r_manifest.py',
+        "python -m unittest discover -s packages/verifier/tests -p 'test_pg001r.py' -v",
+        "python -m unittest discover -s tools/tests -p 'test_verify_pg001r_manifest.py' -v",
+        "python -m unittest discover -s tools/tests -p 'test_verify_pg001_import.py' -v",
+    )
+    active = {line.strip() for line in source.splitlines()
+              if line.startswith('          ') and not line.lstrip().startswith('#')}
+    for command in required_invocations:
+        if command not in active:
+            raise ValueError(f'missing active verification: {command}')
     # Static acceptance is not enough: actual job must run to create valid check.
 
 
