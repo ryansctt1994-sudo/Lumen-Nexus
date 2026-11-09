@@ -92,7 +92,7 @@ def _validate_relative_path(value: Any, context: str) -> str:
     path = PurePosixPath(value)
     _require(not path.is_absolute(), f"{context}: absolute paths are prohibited")
     _require(
-        ".." not in path.parts and str(path) == value and all(part not in ("", ".") for part in path.parts),
+        bool(path.parts) and ".." not in path.parts and str(path) == value and all(part not in ("", ".") for part in path.parts),
         f"{context}: traversal or noncanonical path segments are prohibited",
     )
     _require(
