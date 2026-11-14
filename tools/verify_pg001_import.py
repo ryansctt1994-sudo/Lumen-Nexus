@@ -34,6 +34,22 @@ REQUIRED_TOP_LEVEL_KEYS = {
 }
 
 
+def _strict_json_loads(raw: str) -> Any:
+    """Reject ambiguous duplicate fields and nonstandard numeric constants."""
+    def unique_keys(pairs: list[tuple[str, Any]]) -> dict[str, Any]:
+        result: dict[str, Any] = {}
+        for key, value in pairs:
+            if key in result:
+                raise AdmissionError(f"duplicate JSON object key: {key}")
+            result[key] = value
+        return result
+
+    def reject_constant(token: str) -> None:
+        raise AdmissionError(f"nonfinite JSON token: {token}")
+
+    return json.loads(raw, object_pairs_hook=unique_keys, parse_constant=reject_constant)
+
+
 class AdmissionError(ValueError):
     """Raised when a proposed import violates the admission contract."""
 
@@ -76,8 +92,8 @@ def _validate_relative_path(value: Any, context: str) -> str:
     path = PurePosixPath(value)
     _require(not path.is_absolute(), f"{context}: absolute paths are prohibited")
     _require(
-        ".." not in path.parts and "." not in path.parts,
-        f"{context}: traversal segments are prohibited",
+        bool(path.parts) and ".." not in path.parts and str(path) == value and all(part not in ("", ".") for part in path.parts),
+        f"{context}: traversal or noncanonical path segments are prohibited",
     )
     _require(
         path.parts[0] in ALLOWED_TOP_LEVELS,
@@ -240,7 +256,7 @@ def validate_manifest(manifest: Any, repository_root: Path) -> list[FileRecord]:
 def load_and_validate(manifest_path: Path, repository_root: Path) -> list[FileRecord]:
     _require(manifest_path.is_file(), f"manifest not found: {manifest_path}")
     try:
-        manifest = json.loads(manifest_path.read_text(encoding="utf-8"))
+        manifest = _strict_json_loads(manifest_path.read_text(encoding="utf-8"))
     except json.JSONDecodeError as exc:
         raise AdmissionError(f"manifest: invalid JSON: {exc}") from exc
     return validate_manifest(manifest, repository_root)

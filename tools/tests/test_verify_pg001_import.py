@@ -2,6 +2,7 @@ from __future__ import annotations
 
 import hashlib
 import importlib.util
+import json
 import sys
 import tempfile
 import unittest
@@ -127,6 +128,55 @@ class PG001AdmissionTests(unittest.TestCase):
     def test_extra_keys_are_rejected(self) -> None:
         self.manifest["self_certified"] = True
         self.assert_rejected("unsupported keys")
+
+
+    def test_manifest_duplicate_top_level_identity_rejected(self) -> None:
+        raw = json.dumps(self.manifest)
+        injected = raw.replace('"authority": "NONE"', '"authority": "PRODUCTION", "authority": "NONE"', 1)
+        path = self.root / "manifest.json"
+        path.write_text(injected)
+        with self.assertRaisesRegex(verify.AdmissionError, "duplicate JSON object key"):
+            verify.load_and_validate(path, self.root)
+
+    def test_manifest_nested_duplicate_receipt_signature_rejected(self) -> None:
+        raw = json.dumps(self.manifest)
+        injected = raw.replace(
+            '"signer_key_id": "origin-key-01"',
+            '"signer_key_id": "stolen-key", "signer_key_id": "origin-key-01"',
+            1,
+        )
+        path = self.root / "manifest.json"
+        path.write_text(injected)
+        with self.assertRaisesRegex(verify.AdmissionError, "duplicate JSON object key"):
+            verify.load_and_validate(path, self.root)
+
+    def test_manifest_nonfinite_json_token_rejected(self) -> None:
+        for token in ("NaN", "Infinity", "-Infinity"):
+            with self.subTest(token=token):
+                raw = json.dumps(self.manifest)
+                injected = raw.replace('"authority": "NONE"', '"authority": "NONE", "extra": ' + token, 1)
+                path = self.root / "manifest.json"
+                path.write_text(injected)
+                with self.assertRaisesRegex(verify.AdmissionError, "nonfinite JSON token"):
+                    verify.load_and_validate(path, self.root)
+
+    def test_noncanonical_paths_refused(self) -> None:
+        for path in (
+            "packages//runtime/pg001.py",
+            "packages/./runtime/pg001.py",
+            "packages/runtime/../runtime/pg001.py",
+            ".",
+            "packages/",
+        ):
+            with self.subTest(path=path):
+                self.manifest["source"]["files"][0]["path"] = path
+                self.assert_rejected("noncanonical|traversal")
+
+    def test_normal_manifest_still_loads_from_disk(self) -> None:
+        path = self.root / "manifest.json"
+        path.write_text(json.dumps(self.manifest))
+        records = verify.load_and_validate(path, self.root)
+        self.assertEqual(4, len(records))
 
 
 if __name__ == "__main__":
